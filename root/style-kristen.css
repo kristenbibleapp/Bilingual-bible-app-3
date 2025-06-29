@@ -1,0 +1,65 @@
+
+
+body {
+  font-family: sans-serif;
+  padding: 1rem;
+  transition: background 0.3s, color 0.3s;
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.controls button,
+.controls select {
+  padding: 0.3rem 0.5rem;
+  font-size: 0.9rem;
+}
+}
+.verse-table {
+  display: flex;
+  flex-direction: column;
+  max-height: 400px;
+  overflow-y: auto;
+  font-size: 1rem;
+  font-family: sans-serif;
+}
+.verse-row {
+  display: flex;
+  border-bottom: 1px solid #ccc;
+}
+.verse-cell {
+  flex: 1;
+  padding: 0.5rem;
+}
+.highlight {
+  background-color: yellow;
+}
+body.dark {
+  background: #121212;
+  color: #e0e0e0;
+}
+body.dark .verse-row {
+  border-bottom: 1px solid #444;
+}
+body.dark .highlight {
+  background-color: #555d00;
+}
+h1 {
+  font-size: 20px;
+  margin-top: 0.15rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  line-height: 1.3;
+  color: inherit; /* normal color */
+}
+.controls {
+  position: sticky;
+  top: 0;
+  background-color: inherit; /* Keeps dark/light theme consistent */
+  z-index: 10;
+  padding: 0.5rem;
+  border-bottom: 1px solid #ccc;
+}
