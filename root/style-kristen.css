@@ -1,9 +1,22 @@
 
 
 body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
   font-family: sans-serif;
-  padding: 1rem;
+  display: flex;
+  flex-direction: column;
   transition: background 0.3s, color 0.3s;
+}
+
+h1 {
+  font-size: 20px;
+  margin-top: 0.15rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+  line-height: 1.3;
+  color: inherit;
 }
 
 .controls {
@@ -26,12 +39,19 @@ body {
   font-size: 0.9rem;
 }
 
+.scroll-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0.5rem 1rem;
+}
+
 .verse-table {
   display: flex;
   flex-direction: column;
-  max-height: 400px;
   font-size: 1rem;
   font-family: sans-serif;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 .verse-row {
@@ -59,31 +79,4 @@ body.dark .verse-row {
 
 body.dark .highlight {
   background-color: #555d00;
-}
-
-h1 {
-  font-size: 20px;
-  margin-top: 0.15rem;
-  margin-bottom: 0.5rem;
-  text-align: center;
-  line-height: 1.3;
-  color: inherit;
-}
-.scroll-container {
-  max-height: 75vh;
-  overflow-y: auto;
-  padding-top: 0.5rem;
-}
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.verse-table {
-  flex-grow: 1;
-  margin-bottom: 0;
-  padding-bottom: 0;
 }
