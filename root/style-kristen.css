@@ -11,7 +11,7 @@ body {
 h1 {
   font-size: 20px;
   margin-top: 0.15rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.3rem;
   text-align: center;
   line-height: 1.3;
   color: white;
@@ -41,17 +41,17 @@ h1 {
 .controls button,
 .controls select {
   padding: 0.4rem 0.75rem;
-  font-size: 1.2rem;
+  font-size: 1.7rem;
   border-radius: 8px;
   border: 1px solid #00a9d4;
   background-color: white;
-  color: black;
+  color: blue;
   font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
 }
 
 /* 🔍 Boost font in dropdown OPTION list */
 .controls select option {
-  font-size: 1.3rem;
+  font-size: 1.7rem;
   font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
 }
 
