@@ -11,7 +11,7 @@ body {
 }
 
 h1 {
-  font-size: 22px;
+  font-size: 20px;
   margin-top: 0.15rem;
   margin-bottom: 0.5rem;
   text-align: center;
@@ -23,29 +23,27 @@ h1 {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background-color: #003cf5;
+  background-color: #00c3f5;
   padding: 0.5rem;
-  border-bottom: 2px solid #003cf5;
+  border-bottom: 2px solid #00c3f5;
 }
 
 .controls {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
   margin-bottom: 1rem;
-  background-color: #003cf5;
-  z-index: 999;
-  padding: 0.75rem;
+  background-color: #00c3f5;
+  z-index: 10;
+  padding: 0.5rem;
+  border-bottom: 2px solid #00c3f5;
 }
 
 .controls button,
 .controls select {
-  padding: 0.6rem 1rem;
+  padding: 0.4rem 0.6rem;
   font-size: 1.1rem;
-  border: 1px solid #003cf5;
-  border-radius: 4px;
-  color: #000;
 }
 
 .scroll-container {
@@ -65,7 +63,7 @@ h1 {
 
 .verse-row {
   display: flex;
-  border-bottom: 1px solid #003cf5;
+  border-bottom: 1px solid #00c3f5;
 }
 
 .verse-cell {
@@ -77,33 +75,25 @@ h1 {
   background-color: yellow;
 }
 
-/* 🌙 Eye-Friendly Dark Mode Theme */
 body.dark {
   background: #121212;
   color: #e0e0e0;
 }
 
-body.dark .header {
-  background-color: #1a1a2e;
-  color: white;
-  border-bottom: 1px solid #3366cc;
-}
-
-body.dark .controls {
-  background-color: #1a1a2e;
-}
-
-body.dark .controls button,
-body.dark .controls select {
-  background-color: #1f1f1f;
-  color: #e0e0e0;
-  border: 1px solid #3366cc;
-}
-
 body.dark .verse-row {
-  border-bottom: 1px solid #3366cc;
+  border-bottom: 1px solid #444;
 }
 
 body.dark .highlight {
-  background-color: #444444;
+  background-color: #555d00;
+}
+
+body.dark .header,
+body.dark .controls {
+  background-color: #222;
+  border-bottom: 1px solid #333;
+}
+
+body.dark h1 {
+  color: #e0e0e0;
 }
