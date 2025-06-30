@@ -23,7 +23,7 @@ h1 {
   top: 0;
   z-index: 1000;
   background-color: #00c3f5;
-  padding: 0.3rem 0.5rem; /* smaller height */
+  padding: 0.3rem 0.4rem; /* smaller height */
   border-bottom: 2px solid #00c3f5;
 }
 
