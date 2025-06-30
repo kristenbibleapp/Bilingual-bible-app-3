@@ -1,9 +1,30 @@
-
-
 body {
-  font-family: sans-serif;
-  padding: 1rem;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+  display: flex;
+  flex-direction: column;
   transition: background 0.3s, color 0.3s;
+}
+
+h1 {
+  font-size: 24px;
+  margin-top: 0.5rem;
+  margin-bottom: 0.2rem;
+  text-align: center;
+  line-height: 1.3;
+  color: blue;
+  text-transform: uppercase; /* Make it ALL CAPS */
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #00c3f5;
+  padding: 0.3rem 0.4rem; /* smaller height */
+  border-bottom: 2px solid #00c3f5;
 }
 
 .controls {
@@ -12,31 +33,47 @@ body {
   justify-content: center;
   gap: 0.5rem;
   margin-bottom: 1rem;
-  position: sticky;
-  top: 0;
-  background-color: inherit;
+  background-color: #00c3f5;
   z-index: 10;
-  padding: 0.5rem;
-  border-bottom: 1px solid #ccc;
+  padding: 0.1rem 0.5rem; /* smaller height */
+  border-bottom: 2px solid #00c3f5;
 }
 
 .controls button,
 .controls select {
-  padding: 0.3rem 0.5rem;
-  font-size: 0.9rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 1.5rem;
+  border-radius: 999px; /* capsule shape */
+  border: 2px solid #009cbf; /* slightly darker blue */
+  background-color: white;
+  color: blue;
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+}
+
+/* 🔍 Boost font in dropdown OPTION list */
+.controls select option {
+  font-size: 1.5rem;
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+}
+
+.scroll-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 0.5rem 1rem;
 }
 
 .verse-table {
   display: flex;
   flex-direction: column;
-  max-height: 400px;
   font-size: 1rem;
-  font-family: sans-serif;
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 .verse-row {
   display: flex;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #00c3f5;
 }
 
 .verse-cell {
@@ -48,29 +85,33 @@ body {
   background-color: yellow;
 }
 
+/* 🌙 Dark Mode Styling */
 body.dark {
   background: #121212;
   color: #e0e0e0;
 }
 
+body.dark .header,
+body.dark .controls {
+  background-color: #1a1a2e;
+  border-bottom: 1px solid #3366cc;
+}
+
+body.dark h1 {
+  color: #e0e0e0;
+}
+
+body.dark .controls button,
+body.dark .controls select {
+  background-color: #1f1f1f;
+  color: #e0e0e0;
+  border: 2px solid #3366cc;
+}
+
 body.dark .verse-row {
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid #3366cc;
 }
 
 body.dark .highlight {
-  background-color: #555d00;
-}
-
-h1 {
-  font-size: 20px;
-  margin-top: 0.15rem;
-  margin-bottom: 0.5rem;
-  text-align: center;
-  line-height: 1.3;
-  color: inherit;
-}
-.scroll-container {
-  max-height: 75vh;
-  overflow-y: auto;
-  padding-top: 0.5rem;
+  background-color: #444444;
 }
