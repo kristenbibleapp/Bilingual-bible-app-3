@@ -1,10 +1,8 @@
-
-
 body {
   margin: 0;
   padding: 0;
   height: 100%;
-  font-family: sans-serif;
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
   display: flex;
   flex-direction: column;
   transition: background 0.3s, color 0.3s;
@@ -24,7 +22,7 @@ h1 {
   top: 0;
   z-index: 1000;
   background-color: #00c3f5;
-  padding: 0.5rem;
+  padding: 0.25rem 0.5rem;
   border-bottom: 2px solid #00c3f5;
 }
 
@@ -36,14 +34,25 @@ h1 {
   margin-bottom: 1rem;
   background-color: #00c3f5;
   z-index: 10;
-  padding: 0.5rem;
+  padding: 0.25rem 0.5rem;
   border-bottom: 2px solid #00c3f5;
 }
 
 .controls button,
 .controls select {
-  padding: 0.4rem 0.6rem;
-  font-size: 1.1rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 1.2rem;
+  border-radius: 8px;
+  border: 1px solid #00a9d4;
+  background-color: white;
+  color: black;
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+}
+
+/* 🔍 Boost font in dropdown OPTION list */
+.controls select option {
+  font-size: 1.3rem;
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
 }
 
 .scroll-container {
@@ -56,7 +65,7 @@ h1 {
   display: flex;
   flex-direction: column;
   font-size: 1rem;
-  font-family: sans-serif;
+  font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
   margin-bottom: 0;
   padding-bottom: 0;
 }
@@ -75,25 +84,33 @@ h1 {
   background-color: yellow;
 }
 
+/* 🌙 Dark Mode Styling */
 body.dark {
   background: #121212;
   color: #e0e0e0;
 }
 
-body.dark .verse-row {
-  border-bottom: 1px solid #444;
-}
-
-body.dark .highlight {
-  background-color: #555d00;
-}
-
 body.dark .header,
 body.dark .controls {
-  background-color: #222;
-  border-bottom: 1px solid #333;
+  background-color: #1a1a2e;
+  border-bottom: 1px solid #3366cc;
 }
 
 body.dark h1 {
   color: #e0e0e0;
+}
+
+body.dark .controls button,
+body.dark .controls select {
+  background-color: #1f1f1f;
+  color: #e0e0e0;
+  border: 1px solid #3366cc;
+}
+
+body.dark .verse-row {
+  border-bottom: 1px solid #3366cc;
+}
+
+body.dark .highlight {
+  background-color: #444444;
 }
