@@ -23,7 +23,7 @@ h1 {
   top: 0;
   z-index: 1000;
   background-color: #00c3f5;
-  padding: 0.15rem 0.5rem; /* smaller height */
+  padding: 0.1rem 0.5rem; /* smaller height */
   border-bottom: 2px solid #00c3f5;
 }
 
@@ -35,7 +35,7 @@ h1 {
   margin-bottom: 1rem;
   background-color: #00c3f5;
   z-index: 10;
-  padding: 0.15rem 0.5rem; /* smaller height */
+  padding: 0.1rem 0.5rem; /* smaller height */
   border-bottom: 2px solid #00c3f5;
 }
 
@@ -44,7 +44,7 @@ h1 {
   padding: 0.4rem 0.75rem;
   font-size: 1.5rem;
   border-radius: 999px; /* capsule shape */
-  border: 1px solid #00a9d4;
+  border: 2px solid #009cbf; /* slightly darker blue */
   background-color: white;
   color: blue;
   font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
@@ -105,7 +105,7 @@ body.dark .controls button,
 body.dark .controls select {
   background-color: #1f1f1f;
   color: #e0e0e0;
-  border: 1px solid #3366cc;
+  border: 2px solid #3366cc;
 }
 
 body.dark .verse-row {
