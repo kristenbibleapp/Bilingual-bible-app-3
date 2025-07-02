@@ -9,7 +9,14 @@ const OFFLINE_URLS = [
   'icons/icon-512x512.png'
 ];
 
-// Install: Pre-cache core shell
+// 🔔 Utility: Send log messages to page
+function sendToClients(msg) {
+  self.clients.matchAll().then(clients => {
+    clients.forEach(client => client.postMessage(msg));
+  });
+}
+
+// ⚙️ Install: Pre-cache the app shell
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
@@ -17,7 +24,7 @@ self.addEventListener('install', event => {
   );
 });
 
-// Activate: Clean up old cache versions
+// 🧹 Activate: Clean up old cache versions
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -27,17 +34,22 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Fetch handler: Cache-first, then network, then fallback
+// 🚀 Fetch: Cache-first + visual logging + safe fallback
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
 
+  const url = event.request.url;
+  sendToClients(`➡️ Fetching: ${url}`);
+
   event.respondWith(
     caches.match(event.request).then(cachedResponse => {
-      if (cachedResponse) return cachedResponse;
+      if (cachedResponse) {
+        sendToClients(`✅ Served from cache: ${url}`);
+        return cachedResponse;
+      }
 
       return fetch(event.request)
         .then(networkResponse => {
-          // Clone and cache if valid response
           if (
             networkResponse &&
             networkResponse.status === 200 &&
@@ -46,16 +58,34 @@ self.addEventListener('fetch', event => {
             const cloned = networkResponse.clone();
             caches.open(CACHE_NAME).then(cache => {
               cache.put(event.request, cloned);
+              sendToClients(`📦 Cached: ${url}`);
             });
+            return networkResponse;
+          } else {
+            sendToClients(`⚠️ Not cached (status/type): ${url}`);
+            return networkResponse;
           }
-          return networkResponse;
         })
-        .catch(() => {
-          // If offline and request is HTML, fallback to cached index.html
+        .catch(err => {
+          sendToClients(`❌ Fetch failed: ${url} (${err})`);
+
+          // 🧱 Offline fallback
           if (event.request.destination === 'document') {
             return caches.match('index.html');
+          } else if (
+            event.request.destination === 'script' ||
+            event.request.destination === 'style' ||
+            url.endsWith('.json')
+          ) {
+            // Return a harmless empty response to avoid crashes
+            return new Response('', {
+              status: 200,
+              statusText: 'Offline fallback empty',
+              headers: { 'Content-Type': 'application/json' }
+            });
           }
-          // Otherwise fail silently
+
+          // No fallback for other types
         });
     })
   );
