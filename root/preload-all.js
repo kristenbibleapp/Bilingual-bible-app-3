@@ -38,6 +38,31 @@ function preloadBibleFiles() {
     `;
     document.body.appendChild(progressBox);
 
+    // Preload shell files manually into the cache
+    const shellFiles = [
+      './',
+      '/index.html',
+      '/app.js',
+      '/style-kristen.css',
+      '/manifest.json',
+      '/icons/icon-192x192.png',
+      '/icons/icon-512x512.png'
+    ];
+
+    for (const file of shellFiles) {
+      try {
+        const response = await fetch(file);
+        if (response.ok) {
+          const cache = await caches.open('bilingual-bible-cache-v1');
+          await cache.put(file, response.clone());
+        } else {
+          console.warn(`⚠️ Failed to fetch shell file: ${file}`);
+        }
+      } catch (err) {
+        console.warn(`❌ Failed shell file: ${file}`, err);
+      }
+    }
+
     for (const chapters of Object.values(books)) {
       totalFiles += chapters * versions.length;
     }
@@ -49,17 +74,18 @@ function preloadBibleFiles() {
           const filePath = `/bible/${version}/${book}/${chapterFile}`;
 
           try {
-            await caches.open('bilingual-bible-cache-v1').then(async cache => {
-  const response = await fetch(filePath);
-  if (response.ok) {
-    await cache.put(filePath, response.clone());
-  }
-});
-            loadedFiles++;
-            const percent = ((loadedFiles / totalFiles) * 100).toFixed(1);
-            progressBox.textContent = `📖 Caching: ${loadedFiles} / ${totalFiles} files (${percent}%)`;
+            const response = await fetch(filePath);
+            if (response.ok) {
+              const cache = await caches.open('bilingual-bible-cache-v1');
+              await cache.put(filePath, response.clone());
+              loadedFiles++;
+              const percent = ((loadedFiles / totalFiles) * 100).toFixed(1);
+              progressBox.textContent = `📖 Caching: ${loadedFiles} / ${totalFiles} files (${percent}%)`;
+            } else {
+              console.warn(`Skipped (bad response): ${filePath}`);
+            }
           } catch (err) {
-            console.warn(`Failed to cache: ${filePath}`, err);
+            console.warn(`❌ Failed to cache: ${filePath}`, err);
           }
         }
       }
