@@ -9,7 +9,7 @@ const OFFLINE_URLS = [
   'icons/icon-512x512.png'
 ];
 
-// Install: pre-cache app shell
+// Install: Pre-cache core shell
 self.addEventListener('install', event => {
   self.skipWaiting();
   event.waitUntil(
@@ -17,30 +17,46 @@ self.addEventListener('install', event => {
   );
 });
 
-// Activate: clean old caches
+// Activate: Clean up old cache versions
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-      )
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
     )
   );
   self.clients.claim();
 });
 
-// Fetch: try cache → fetch → cache fetched version
+// Fetch handler: Cache-first, then network, then fallback
 self.addEventListener('fetch', event => {
-  // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
-  const url = event.request.url;
-
   event.respondWith(
-    caches.open(CACHE_NAME).then(async cache => {
-      const cached = await cache.match(url);
-      if (cached) return cached;
+    caches.match(event.request).then(cachedResponse => {
+      if (cachedResponse) return cachedResponse;
 
-      try {
-        const response = await fetch(event.request);
-        // Only cache basic 200 responses (not opaque, etc.)
+      return fetch(event.request)
+        .then(networkResponse => {
+          // Clone and cache if valid response
+          if (
+            networkResponse &&
+            networkResponse.status === 200 &&
+            (networkResponse.type === 'basic' || networkResponse.type === 'cors')
+          ) {
+            const cloned = networkResponse.clone();
+            caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, cloned);
+            });
+          }
+          return networkResponse;
+        })
+        .catch(() => {
+          // If offline and request is HTML, fallback to cached index.html
+          if (event.request.destination === 'document') {
+            return caches.match('index.html');
+          }
+          // Otherwise fail silently
+        });
+    })
+  );
+});
