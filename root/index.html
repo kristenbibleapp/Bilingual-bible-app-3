@@ -144,5 +144,15 @@
   </script>
 
   <button onclick="localStorage.removeItem('biblePreloaded'); location.reload();" style="position:fixed;bottom:5px;right:5px;font-size:12px;">🧹 Reset Preload</button>
+<script>
+  if ('caches' in window) {
+    caches.open('bilingual-bible-cache-v1').then(cache => {
+      cache.keys().then(keys => {
+        console.log("📦 Cached URLs:");
+        keys.forEach(request => console.log(request.url));
+      });
+    });
+  }
+</script>
 </body>
 </html>
