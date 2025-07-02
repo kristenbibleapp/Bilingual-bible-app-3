@@ -154,5 +154,17 @@
     });
   }
 </script>
+  <div id="sw-log" style="max-height:200px;overflow:auto;font-family:monospace;font-size:12px;background:#000;color:#0f0;padding:10px;margin:10px;border-radius:6px;"></div>
+<script>
+  navigator.serviceWorker.addEventListener('message', event => {
+    const logBox = document.getElementById('sw-log');
+    if (logBox) {
+      const line = document.createElement('div');
+      line.textContent = event.data;
+      logBox.appendChild(line);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+  });
+</script>
 </body>
 </html>
