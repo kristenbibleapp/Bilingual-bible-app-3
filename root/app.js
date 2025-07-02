@@ -165,13 +165,14 @@ function changeChapter(direction) {
     chapterPicker.dispatchEvent(new Event('change'));
   }
 }
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("service-worker.js")
-    .then(function(registration) {
-      console.log("Service Worker registered with scope:", registration.scope);
-    })
-    .catch(function(error) {
-      console.log("Service Worker registration failed:", error);
-    });
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('service-worker.js')
+      .then(function(registration) {
+        console.log('Service Worker registered with scope:', registration.scope);
+      })
+      .catch(function(error) {
+        console.log('Service Worker registration failed:', error);
+      });
+  });
 }
-
