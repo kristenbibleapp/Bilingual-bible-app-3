@@ -16,51 +16,54 @@ const books = {
   "Revelation": 22
 };
 
-async function preloadBibleFiles() {
-  const versions = ['kjv', 'rvr'];
-  let totalFiles = 0;
-  let loadedFiles = 0;
+function preloadBibleFiles() {
+  return new Promise(async (resolve) => {
+    const versions = ['kjv', 'rvr'];
+    let totalFiles = 0;
+    let loadedFiles = 0;
 
-  const progressBox = document.createElement('div');
-  progressBox.id = 'preloadProgress';
-  progressBox.style.cssText = `
-    position: fixed;
-    bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #003cf5;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 6px;
-    font-family: sans-serif;
-    z-index: 10000;
-  `;
-  document.body.appendChild(progressBox);
+    const progressBox = document.createElement('div');
+    progressBox.id = 'preloadProgress';
+    progressBox.style.cssText = `
+      position: fixed;
+      bottom: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #003cf5;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-family: sans-serif;
+      z-index: 10000;
+    `;
+    document.body.appendChild(progressBox);
 
-  // Calculate total file count
-  for (const chapters of Object.values(books)) {
-    totalFiles += chapters * versions.length;
-  }
+    // Calculate total file count
+    for (const chapters of Object.values(books)) {
+      totalFiles += chapters * versions.length;
+    }
 
-  // Download and cache each file
-  for (const version of versions) {
-    for (const [book, chapters] of Object.entries(books)) {
-      for (let i = 1; i <= chapters; i++) {
-        const chapterFile = i.toString().padStart(2, '0') + '.json';
-        const filePath = `/bible/${version}/${book}/${chapterFile}`;
+    // Download and cache each file
+    for (const version of versions) {
+      for (const [book, chapters] of Object.entries(books)) {
+        for (let i = 1; i <= chapters; i++) {
+          const chapterFile = i.toString().padStart(2, '0') + '.json';
+          const filePath = `/bible/${version}/${book}/${chapterFile}`;
 
-        try {
-          await fetch(filePath);
-          loadedFiles++;
-          const percent = ((loadedFiles / totalFiles) * 100).toFixed(1);
-          progressBox.textContent = `📖 Caching: ${loadedFiles} / ${totalFiles} files (${percent}%)`;
-        } catch (err) {
-          console.warn(`Failed to cache: ${filePath}`, err);
+          try {
+            await fetch(filePath);
+            loadedFiles++;
+            const percent = ((loadedFiles / totalFiles) * 100).toFixed(1);
+            progressBox.textContent = `📖 Caching: ${loadedFiles} / ${totalFiles} files (${percent}%)`;
+          } catch (err) {
+            console.warn(`Failed to cache: ${filePath}`, err);
+          }
         }
       }
     }
-  }
 
-  progressBox.textContent = `✅ Finished: ${loadedFiles} of ${totalFiles} files cached.`;
-  setTimeout(() => progressBox.remove(), 4000);
+    progressBox.textContent = `✅ Finished: ${loadedFiles} of ${totalFiles} files cached.`;
+    setTimeout(() => progressBox.remove(), 4000);
+    resolve();
+  });
 }
