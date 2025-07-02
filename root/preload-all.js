@@ -25,26 +25,24 @@ function preloadBibleFiles() {
     const progressBox = document.createElement('div');
     progressBox.id = 'preloadProgress';
     progressBox.style.cssText = `
-  position: fixed;
-  top: 60px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #003cf5;
-  color: white;
-  padding: 10px 15px;
-  border-radius: 6px;
-  font-family: sans-serif;
-  z-index: 10000;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-`;
+      position: fixed;
+      top: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #003cf5;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 6px;
+      font-family: sans-serif;
+      z-index: 10000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    `;
     document.body.appendChild(progressBox);
 
-    // Calculate total file count
     for (const chapters of Object.values(books)) {
       totalFiles += chapters * versions.length;
     }
 
-    // Download and cache each file
     for (const version of versions) {
       for (const [book, chapters] of Object.entries(books)) {
         for (let i = 1; i <= chapters; i++) {
@@ -65,6 +63,6 @@ function preloadBibleFiles() {
 
     progressBox.textContent = `✅ Finished: ${loadedFiles} of ${totalFiles} files cached.`;
     setTimeout(() => progressBox.remove(), 4000);
-    resolve();
+    resolve(); // ✅ finally let the button script know it's done
   });
 }
