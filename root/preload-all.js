@@ -25,17 +25,18 @@ function preloadBibleFiles() {
     const progressBox = document.createElement('div');
     progressBox.id = 'preloadProgress';
     progressBox.style.cssText = `
-      position: fixed;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #003cf5;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 6px;
-      font-family: sans-serif;
-      z-index: 10000;
-    `;
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #003cf5;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-family: sans-serif;
+  z-index: 10000;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+`;
     document.body.appendChild(progressBox);
 
     // Calculate total file count
