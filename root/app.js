@@ -64,8 +64,8 @@ function loadChapter() {
   const chapter = document.getElementById("chapterPicker").value;
 
   Promise.all([
-    fetch(`bible/kjv/${book}/${chapter}.json`).then(r => r.json()),
-    fetch(`bible/rvr/${book}/${chapter}.json`).then(r => r.json())
+    fetch(`/bible/kjv/${book}/${chapter}.json`).then(r => r.json()),
+    fetch(`/bible/rvr/${book}/${chapter}.json`).then(r => r.json())
   ])
   .then(([kjvData, rvrData]) => {
     const table = document.getElementById("verseTable");
