@@ -49,7 +49,12 @@ function preloadBibleFiles() {
           const filePath = `/bible/${version}/${book}/${chapterFile}`;
 
           try {
-            await fetch(filePath);
+            await caches.open('bilingual-bible-cache-v1').then(async cache => {
+  const response = await fetch(filePath);
+  if (response.ok) {
+    await cache.put(filePath, response.clone());
+  }
+});
             loadedFiles++;
             const percent = ((loadedFiles / totalFiles) * 100).toFixed(1);
             progressBox.textContent = `📖 Caching: ${loadedFiles} / ${totalFiles} files (${percent}%)`;
