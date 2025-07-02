@@ -145,5 +145,20 @@
     }
   }
 </script>
+  <script>
+  const testBox = document.createElement('div');
+  testBox.textContent = '👋 Hello from preload test';
+  testBox.style.cssText = `
+    position: fixed;
+    top: 60px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: red;
+    color: white;
+    padding: 10px;
+    z-index: 9999;
+  `;
+  document.body.appendChild(testBox);
+</script>
 </body>
 </html>
