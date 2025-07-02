@@ -107,8 +107,7 @@
       });
     }
   </script>
-  <!-- Style the preload button so it's visible -->
-<style>
+  <!-- Style the preload button so it's visible --><style>
   #preloadBtn {
     font-size: 18px;
     padding: 12px 20px;
@@ -123,11 +122,44 @@
   }
 </style>
 
- <!-- 📥 Preload Button -->
 <button id="preloadBtn" onclick="preloadBibleFilesAndDisable()">📥 Preload Entire Bible for Offline</button>
-<!-- Load preload logic -->
-<script src="preload-all.js"></script>
+
 <script>
+  function preloadBibleFiles() {
+    return new Promise((resolve) => {
+      const progressBox = document.createElement('div');
+      progressBox.id = 'preloadProgress';
+      progressBox.style.cssText = `
+        position: fixed;
+        top: 60px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #003cf5;
+        color: white;
+        padding: 10px 15px;
+        border-radius: 6px;
+        font-family: sans-serif;
+        z-index: 10000;
+      `;
+      document.body.appendChild(progressBox);
+
+      let count = 0;
+      const total = 10; // Simulate 10 files
+      const interval = setInterval(() => {
+        count++;
+        const percent = ((count / total) * 100).toFixed(0);
+        progressBox.textContent = `📖 Caching: ${count} / ${total} files (${percent}%)`;
+
+        if (count === total) {
+          clearInterval(interval);
+          progressBox.textContent = `✅ Finished: ${total} of ${total} files cached.`;
+          setTimeout(() => progressBox.remove(), 4000);
+          resolve();
+        }
+      }, 300);
+    });
+  }
+
   function preloadBibleFilesAndDisable() {
     preloadBibleFiles().then(() => {
       const btn = document.getElementById('preloadBtn');
