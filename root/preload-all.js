@@ -38,15 +38,10 @@ function preloadBibleFiles() {
     `;
     document.body.appendChild(progressBox);
 
-    // Preload shell files manually into the cache
+    // Pre-cache shell files
     const shellFiles = [
-      './',
-      '/index.html',
-      '/app.js',
-      '/style-kristen.css',
-      '/manifest.json',
-      '/icons/icon-192x192.png',
-      '/icons/icon-512x512.png'
+      './', '/index.html', '/app.js', '/style-kristen.css',
+      '/manifest.json', '/icons/icon-192x192.png', '/icons/icon-512x512.png'
     ];
 
     for (const file of shellFiles) {
@@ -55,47 +50,53 @@ function preloadBibleFiles() {
         if (response.ok) {
           const cache = await caches.open('bilingual-bible-cache-v1');
           await cache.put(file, response.clone());
-        } else {
-          console.warn(`⚠️ Failed to fetch shell file: ${file}`);
         }
       } catch (err) {
-        console.warn(`❌ Failed shell file: ${file}`, err);
+        console.warn(`❌ Failed to cache shell file: ${file}`, err);
       }
     }
 
-    for (const chapters of Object.values(books)) {
-      totalFiles += chapters * versions.length;
-    }
-
+    // Build list of all Bible chapter files
+    const bibleFiles = [];
     for (const version of versions) {
       for (const [book, chapters] of Object.entries(books)) {
         for (let i = 1; i <= chapters; i++) {
           const chapterFile = i.toString().padStart(2, '0') + '.json';
           const filePath = `/bible/${version}/${book}/${chapterFile}`;
-
-          try {
-            const response = await fetch(filePath);
-            if (response.ok) {
-              const cache = await caches.open('bilingual-bible-cache-v1');
-              await cache.put(filePath, response.clone());
-              loadedFiles++;
-              const percent = ((loadedFiles / totalFiles) * 100).toFixed(1);
-              progressBox.textContent = `📖 Caching: ${loadedFiles} / ${totalFiles} files (${percent}%)`;
-            } else {
-              console.warn(`Skipped (bad response): ${filePath}`);
-            }
-          } catch (err) {
-            console.warn(`❌ Failed to cache: ${filePath}`, err);
-          }
+          bibleFiles.push(filePath);
         }
       }
     }
 
-    progressBox.textContent = `✅ Finished: ${loadedFiles} of ${totalFiles} files cached.`;
+    totalFiles = bibleFiles.length;
+    const batchSize = 300;
 
+    for (let i = 0; i < totalFiles; i += batchSize) {
+      const batch = bibleFiles.slice(i, i + batchSize);
+
+      await Promise.all(batch.map(async filePath => {
+        try {
+          const response = await fetch(filePath);
+          if (response.ok) {
+            const cache = await caches.open('bilingual-bible-cache-v1');
+            await cache.put(filePath, response.clone());
+            loadedFiles++;
+            const percent = ((loadedFiles / totalFiles) * 100).toFixed(1);
+            progressBox.textContent = `📖 Caching: ${loadedFiles} / ${totalFiles} files (${percent}%)`;
+          }
+        } catch (err) {
+          console.warn(`❌ Failed to cache: ${filePath}`, err);
+        }
+      }));
+
+      await new Promise(resolve => setTimeout(resolve, 150)); // Pause between batches
+    }
+
+    progressBox.textContent = `✅ Finished: ${loadedFiles} of ${totalFiles} files cached.`;
     if (loadedFiles < totalFiles) {
-  console.warn(`⚠️ Warning: Only ${loadedFiles} of ${totalFiles} were actually cached.`);
-}
+      console.warn(`⚠️ Warning: Only ${loadedFiles} of ${totalFiles} were actually cached.`);
+    }
+
     setTimeout(() => progressBox.remove(), 4000);
     resolve();
   });
