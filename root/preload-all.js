@@ -20,10 +20,11 @@ function preloadBibleFiles() {
     const versions = ['kjv', 'rvr'];
     let totalFiles = 0;
     let loadedFiles = 0;
+    const failedFiles = [];
 
     const progressBox = document.createElement('div');
     progressBox.id = 'preloadProgress';
-    progressBox.style.cssText = `
+    progressBox.style.cssText = \`
       position: fixed;
       top: 60px;
       left: 50%;
@@ -35,10 +36,9 @@ function preloadBibleFiles() {
       font-family: sans-serif;
       z-index: 10000;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    `;
+    \`;
     document.body.appendChild(progressBox);
 
-    // Pre-cache shell files
     const shellFiles = [
       './', '/index.html', '/app.js', '/style-kristen.css',
       '/manifest.json', '/icons/icon-192x192.png', '/icons/icon-512x512.png'
@@ -52,49 +52,65 @@ function preloadBibleFiles() {
           await cache.put(file, response.clone());
         }
       } catch (err) {
-        console.warn(`❌ Failed to cache shell file: ${file}`, err);
+        console.warn(\`❌ Failed to cache shell file: \${file}\`, err);
       }
     }
 
-    // Build list of all Bible chapter files
     const bibleFiles = [];
     for (const version of versions) {
       for (const [book, chapters] of Object.entries(books)) {
         for (let i = 1; i <= chapters; i++) {
           const chapterFile = i.toString().padStart(2, '0') + '.json';
-          const filePath = `/bible/${version}/${book}/${chapterFile}`;
+          const filePath = \`/bible/\${version}/\${book}/\${chapterFile}\`;
           bibleFiles.push(filePath);
         }
       }
     }
 
     totalFiles = bibleFiles.length;
-    const batchSize = 300;
 
-    for (let i = 0; i < totalFiles; i += batchSize) {
-      const batch = bibleFiles.slice(i, i + batchSize);
-
-      await Promise.all(batch.map(async filePath => {
-        try {
-          const response = await fetch(filePath);
-          if (response.ok) {
-            const cache = await caches.open('bilingual-bible-cache-v1');
-            await cache.put(filePath, response.clone());
-            loadedFiles++;
-            const percent = ((loadedFiles / totalFiles) * 100).toFixed(1);
-            progressBox.textContent = `📖 Caching: ${loadedFiles} / ${totalFiles} files (${percent}%)`;
-          }
-        } catch (err) {
-          console.warn(`❌ Failed to cache: ${filePath}`, err);
+    async function tryCache(filePath) {
+      try {
+        const response = await fetch(filePath);
+        if (response.ok) {
+          const cache = await caches.open('bilingual-bible-cache-v1');
+          await cache.put(filePath, response.clone());
+          return true;
         }
-      }));
-
-      await new Promise(resolve => setTimeout(resolve, 150)); // Pause between batches
+      } catch {}
+      return false;
     }
 
-    progressBox.textContent = `✅ Finished: ${loadedFiles} of ${totalFiles} files cached.`;
-    if (loadedFiles < totalFiles) {
-      console.warn(`⚠️ Warning: Only ${loadedFiles} of ${totalFiles} were actually cached.`);
+    for (const filePath of bibleFiles) {
+      const success = await tryCache(filePath);
+      if (success) {
+        loadedFiles++;
+        const percent = ((loadedFiles / totalFiles) * 100).toFixed(1);
+        progressBox.textContent = \`📖 Caching: \${loadedFiles} / \${totalFiles} files (\${percent}%)\`;
+      } else {
+        failedFiles.push(filePath);
+      }
+    }
+
+    // Retry failed files up to 2 more times
+    for (let attempt = 1; attempt <= 2 && failedFiles.length > 0; attempt++) {
+      const retrying = [...failedFiles];
+      failedFiles.length = 0;
+      for (const filePath of retrying) {
+        const success = await tryCache(filePath);
+        if (success) {
+          loadedFiles++;
+          const percent = ((loadedFiles / totalFiles) * 100).toFixed(1);
+          progressBox.textContent = \`📖 Retrying: \${loadedFiles} / \${totalFiles} files (\${percent}%)\`;
+        } else {
+          failedFiles.push(filePath);
+        }
+      }
+    }
+
+    progressBox.textContent = \`✅ Finished: \${loadedFiles} of \${totalFiles} files cached.\`;
+    if (failedFiles.length > 0) {
+      console.warn(\`⚠️ \${failedFiles.length} files failed after retries:\`, failedFiles);
     }
 
     setTimeout(() => progressBox.remove(), 4000);
