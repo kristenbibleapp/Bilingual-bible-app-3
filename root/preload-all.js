@@ -92,6 +92,10 @@ function preloadBibleFiles() {
     }
 
     progressBox.textContent = `✅ Finished: ${loadedFiles} of ${totalFiles} files cached.`;
+
+    if (loadedFiles < totalFiles) {
+  console.warn(`⚠️ Warning: Only ${loadedFiles} of ${totalFiles} were actually cached.`);
+}
     setTimeout(() => progressBox.remove(), 4000);
     resolve();
   });
