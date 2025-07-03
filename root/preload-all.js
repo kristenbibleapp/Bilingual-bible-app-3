@@ -18,13 +18,12 @@ function preloadBibleFiles() {
       "Revelation": 22
     };
     const versions = ['kjv', 'rvr'];
-    let totalFiles = 0;
-    let loadedFiles = 0;
     const failedFiles = [];
+    let loadedFiles = 0;
 
     const progressBox = document.createElement('div');
     progressBox.id = 'preloadProgress';
-    progressBox.style.cssText = \`
+    progressBox.style.cssText = `
       position: fixed;
       top: 60px;
       left: 50%;
@@ -36,7 +35,7 @@ function preloadBibleFiles() {
       font-family: sans-serif;
       z-index: 10000;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    \`;
+    `;
     document.body.appendChild(progressBox);
 
     const shellFiles = [
@@ -52,7 +51,7 @@ function preloadBibleFiles() {
           await cache.put(file, response.clone());
         }
       } catch (err) {
-        console.warn(\`❌ Failed to cache shell file: \${file}\`, err);
+        console.warn(`❌ Failed to cache shell file: ${file}`, err);
       }
     }
 
@@ -60,14 +59,13 @@ function preloadBibleFiles() {
     for (const version of versions) {
       for (const [book, chapters] of Object.entries(books)) {
         for (let i = 1; i <= chapters; i++) {
-          const chapterFile = i.toString().padStart(2, '0') + '.json';
-          const filePath = \`/bible/\${version}/\${book}/\${chapterFile}\`;
+          const filePath = `/bible/${version}/${book}/${i.toString().padStart(2, '0')}.json`;
           bibleFiles.push(filePath);
         }
       }
     }
 
-    totalFiles = bibleFiles.length;
+    const totalFiles = bibleFiles.length;
 
     async function tryCache(filePath) {
       try {
@@ -77,7 +75,7 @@ function preloadBibleFiles() {
           await cache.put(filePath, response.clone());
           return true;
         }
-      } catch {}
+      } catch (err) {}
       return false;
     }
 
@@ -86,31 +84,30 @@ function preloadBibleFiles() {
       if (success) {
         loadedFiles++;
         const percent = ((loadedFiles / totalFiles) * 100).toFixed(1);
-        progressBox.textContent = \`📖 Caching: \${loadedFiles} / \${totalFiles} files (\${percent}%)\`;
+        progressBox.textContent = `📖 Caching: ${loadedFiles} / ${totalFiles} files (${percent}%)`;
       } else {
         failedFiles.push(filePath);
       }
     }
 
-    // Retry failed files up to 2 more times
     for (let attempt = 1; attempt <= 2 && failedFiles.length > 0; attempt++) {
-      const retrying = [...failedFiles];
+      const retryList = [...failedFiles];
       failedFiles.length = 0;
-      for (const filePath of retrying) {
+      for (const filePath of retryList) {
         const success = await tryCache(filePath);
         if (success) {
           loadedFiles++;
           const percent = ((loadedFiles / totalFiles) * 100).toFixed(1);
-          progressBox.textContent = \`📖 Retrying: \${loadedFiles} / \${totalFiles} files (\${percent}%)\`;
+          progressBox.textContent = `📖 Retrying: ${loadedFiles} / ${totalFiles} files (${percent}%)`;
         } else {
           failedFiles.push(filePath);
         }
       }
     }
 
-    progressBox.textContent = \`✅ Finished: \${loadedFiles} of \${totalFiles} files cached.\`;
+    progressBox.textContent = `✅ Finished: ${loadedFiles} of ${totalFiles} files cached.`;
     if (failedFiles.length > 0) {
-      console.warn(\`⚠️ \${failedFiles.length} files failed after retries:\`, failedFiles);
+      console.warn(`⚠️ ${failedFiles.length} files failed after retries:`, failedFiles);
     }
 
     setTimeout(() => progressBox.remove(), 4000);
