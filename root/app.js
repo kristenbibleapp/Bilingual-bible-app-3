@@ -1,101 +1,129 @@
-let currentBook = "Genesis";
-let currentChapter = "1";
+let currentBook = 'Genesis';
+let currentChapter = '1';
+let currentVerse = null;
+let fontSize = 1;
+let isDarkMode = false;
 
-const bookPicker = document.getElementById("bookPicker");
-const chapterPicker = document.getElementById("chapterPicker");
-const versePicker = document.getElementById("versePicker");
-const verseTable = document.getElementById("verseTable");
+document.addEventListener('DOMContentLoaded', () => {
+  const bookPicker = document.getElementById('bookPicker');
+  const chapterPicker = document.getElementById('chapterPicker');
+  const versePicker = document.getElementById('versePicker');
+  const fontSelect = document.getElementById('fontSelect');
+  const verseTable = document.getElementById('verseTable');
 
-const kjvPath = "/bible/kjv";
-const rvrPath = "/bible/rvr";
+  bookPicker.addEventListener('change', () => {
+    currentBook = bookPicker.value;
+    currentChapter = '1';
+    loadChapter();
+  });
 
-bookPicker.addEventListener("change", () => {
-  currentBook = bookPicker.value;
-  loadChapterOptions(currentBook);
+  chapterPicker.addEventListener('change', () => {
+    currentChapter = chapterPicker.value;
+    loadChapter();
+  });
+
+  versePicker.addEventListener('change', () => {
+    currentVerse = versePicker.value;
+    scrollToVerse(currentVerse);
+  });
+
+  document.getElementById('increaseFont').addEventListener('click', () => {
+    fontSize += 0.1;
+    verseTable.style.fontSize = fontSize + 'rem';
+  });
+
+  document.getElementById('decreaseFont').addEventListener('click', () => {
+    fontSize = Math.max(0.5, fontSize - 0.1);
+    verseTable.style.fontSize = fontSize + 'rem';
+  });
+
+  fontSelect.addEventListener('change', () => {
+    verseTable.style.fontFamily = fontSelect.value;
+  });
+
+  document.getElementById('toggleDarkMode').addEventListener('click', () => {
+    isDarkMode = !isDarkMode;
+    document.body.classList.toggle('dark', isDarkMode);
+  });
+
+  loadChapter();
 });
 
-chapterPicker.addEventListener("change", () => {
-  currentChapter = chapterPicker.value;
-  loadVerses(currentBook, currentChapter);
-});
+function loadChapter() {
+  const leftPath = `/bible/kjv/${currentBook}/${currentChapter.padStart(2, '0')}.json`;
+  const rightPath = `/bible/rvr/${currentBook}/${currentChapter.padStart(2, '0')}.json`;
 
-versePicker.addEventListener("change", () => {
-  const verseId = versePicker.value;
-  const verseRow = document.querySelector(`.verse-row[data-verse="${verseId}"]`);
-  if (verseRow) verseRow.scrollIntoView({ behavior: "smooth", block: "center" });
-});
+  Promise.all([fetch(leftPath), fetch(rightPath)])
+    .then(responses => Promise.all(responses.map(r => r.json())))
+    .then(([kjvData, rvrData]) => {
+      const verseTable = document.getElementById('verseTable');
+      verseTable.innerHTML = '';
+      const maxVerses = Math.max(Object.keys(kjvData).length, Object.keys(rvrData).length);
 
-document.getElementById("increaseFont").addEventListener("click", () => adjustFontSize(1));
-document.getElementById("decreaseFont").addEventListener("click", () => adjustFontSize(-1));
+      const versePicker = document.getElementById('versePicker');
+      versePicker.innerHTML = '';
+      for (let i = 1; i <= maxVerses; i++) {
+        const option = document.createElement('option');
+        option.value = i;
+        option.textContent = `Verse ${i}`;
+        versePicker.appendChild(option);
+      }
 
-document.getElementById("fontSelect").addEventListener("change", (e) => {
-  verseTable.style.fontFamily = e.target.value;
-});
+      for (let i = 1; i <= maxVerses; i++) {
+        const row = document.createElement('div');
+        row.className = 'verse-row';
+        row.dataset.verse = i;
 
-document.getElementById("toggleDarkMode").addEventListener("click", () => {
-  document.body.classList.toggle("dark-mode");
-});
+        const leftCell = document.createElement('div');
+        leftCell.className = 'verse-cell left';
+        leftCell.textContent = `${i}. ${kjvData[i] || ''}`;
 
-function adjustFontSize(change) {
-  const currentSize = parseFloat(getComputedStyle(verseTable).fontSize);
-  verseTable.style.fontSize = `${currentSize + change}px`;
-}
+        const rightCell = document.createElement('div');
+        rightCell.className = 'verse-cell right';
+        rightCell.textContent = `${i}. ${rvrData[i] || ''}`;
 
-function loadChapterOptions(book) {
-  fetch(`${kjvPath}/${book}/index.json`)
-    .then(res => res.json())
-    .then(index => {
-      chapterPicker.innerHTML = "";
-      index.chapters.forEach((ch, i) => {
-        const option = document.createElement("option");
-        option.value = String(i + 1);
-        option.textContent = `Chapter ${i + 1}`;
-        chapterPicker.appendChild(option);
-      });
-      chapterPicker.value = "1";
-      loadVerses(book, "1");
+        row.appendChild(leftCell);
+        row.appendChild(rightCell);
+
+        row.addEventListener('click', () => highlightVerse(i));
+
+        verseTable.appendChild(row);
+      }
+
+      populateChapters();
     })
     .catch(err => {
-      console.error(`❌ Failed to load chapter index for ${book}:`, err);
+      console.error('Error loading chapter:', err);
+      document.getElementById('verseTable').innerHTML = '<p style="color:red;">â Error loading scripture.</p>';
     });
 }
 
-function loadVerses(book, chapter) {
-  const chapterFile = chapter.padStart(2, "0") + ".json";
-  Promise.all([
-    fetch(`${kjvPath}/${book}/${chapterFile}`).then(res => res.json()),
-    fetch(`${rvrPath}/${book}/${chapterFile}`).then(res => res.json())
-  ]).then(([kjvData, rvrData]) => {
-    verseTable.innerHTML = "";
-    versePicker.innerHTML = "";
+function populateChapters() {
+  const chapterPicker = document.getElementById('chapterPicker');
+  chapterPicker.innerHTML = '';
+  const chapters = 150; // default guess â you can adjust this per book if needed
+  for (let i = 1; i <= chapters; i++) {
+    const option = document.createElement('option');
+    option.value = i;
+    option.textContent = `Chapter ${i}`;
+    chapterPicker.appendChild(option);
+  }
+  chapterPicker.value = currentChapter;
+}
 
-    Object.keys(kjvData).forEach(verseNum => {
-      const row = document.createElement("div");
-      row.className = "verse-row";
-      row.dataset.verse = verseNum;
+function scrollToVerse(verse) {
+  const row = document.querySelector(`.verse-row[data-verse="${verse}"]`);
+  if (row) {
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    highlightVerse(verse);
+  }
+}
 
-      const engCell = document.createElement("div");
-      engCell.className = "verse eng";
-      engCell.textContent = `${verseNum}. ${kjvData[verseNum]}`;
-
-      const espCell = document.createElement("div");
-      espCell.className = "verse esp";
-      espCell.textContent = `${verseNum}. ${rvrData[verseNum] || ""}`;
-
-      row.appendChild(engCell);
-      row.appendChild(espCell);
-      verseTable.appendChild(row);
-
-      const option = document.createElement("option");
-      option.value = verseNum;
-      option.textContent = `Verse ${verseNum}`;
-      versePicker.appendChild(option);
-    });
-  }).catch(err => {
-    console.error(`❌ Failed to load chapter ${chapter} of ${book}:`, err);
-    verseTable.innerHTML = "<p>Error loading chapter.</p>";
+function highlightVerse(verse) {
+  document.querySelectorAll('.verse-row').forEach(row => {
+    row.classList.remove('highlight');
   });
-}
-
-// Initial setup
-loadChapterOptions(currentBook);
+  const target = document.querySelector(`.verse-row[data-verse="${verse}"]`);
+  if (target) {
+    target.classList.add('highlight');
+  }
