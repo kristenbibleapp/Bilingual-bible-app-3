@@ -35,7 +35,40 @@ document.addEventListener('DOMContentLoaded', () => {
     populateChapters();
     loadChapter();
   });
+  
+  let touchStartX = null;
 
+  document.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  });
+
+  document.addEventListener('touchend', e => {
+    if (touchStartX === null) return;
+
+    const touchEndX = e.changedTouches[0].screenX;
+    const deltaX = touchEndX - touchStartX;
+
+    if (Math.abs(deltaX) > 50) {
+      const direction = deltaX > 0 ? 'left' : 'right';
+      changeChapter(direction);
+    }
+
+    touchStartX = null;
+  });
+
+  function changeChapter(direction) {
+    const chapterPicker = document.getElementById('chapterPicker');
+    const chapters = Array.from(chapterPicker.options).map(opt => opt.value);
+    const currentIndex = chapters.indexOf(currentChapter);
+
+    let newIndex = direction === 'left' ? currentIndex - 1 : currentIndex + 1;
+    if (newIndex < 0 || newIndex >= chapters.length) return;
+
+    currentChapter = chapters[newIndex];
+    chapterPicker.value = currentChapter;
+    loadChapter();
+  }
+  
   chapterPicker.addEventListener('change', () => {
     currentChapter = chapterPicker.value;
     loadChapter();
